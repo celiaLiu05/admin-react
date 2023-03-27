@@ -12,12 +12,8 @@ class Login extends Component {
         this.props.form.validateFields(async(err, values) => {
             if (!err) {
                 const {username, password} = values
-                try {
-                    const response = await reqLogin(username, password)
-                    console.log('请求成功', response.data);
-                }catch(e) {
-                    console.log(e.data);
-                }
+                const response = await reqLogin(username, password)
+                console.log('请求成功', response.data);
             }else {
                 console.log("校验失败");
             }
