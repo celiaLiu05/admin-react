@@ -9,14 +9,15 @@ class Login extends Component {
         // 阻止事件的默认行为
         e.preventDefault()
         // 检验成功·
-        this.props.form.validateFields((err, values) => {
+        this.props.form.validateFields(async(err, values) => {
             if (!err) {
                 const {username, password} = values
-                reqLogin(username, password).then((response) => {
+                try {
+                    const response = await reqLogin(username, password)
                     console.log('请求成功', response.data);
-                }).catch((error) => {
-                    console.log('请求失败', error);
-                })
+                }catch(e) {
+                    console.log(e.data);
+                }
             }else {
                 console.log("校验失败");
             }
@@ -121,10 +122,11 @@ class Login extends Component {
 const WrapLogin = Form.create()(Login)
 export default WrapLogin
 
-// 处理表单数据的三步
-// 1. 前台表单验证
-// 2. 收集表单输入数据
-// 3. 发送请求
+/* 处理表单数据的三步
+    1. 前台表单验证
+    2. 收集表单输入数据
+    3. 发送请求
+*/
 
 /*
 1. 高阶函数
@@ -145,3 +147,14 @@ export default WrapLogin
     3). 作用: 扩展组件的功能
     4). 高阶组件也是高阶函数: 接收一个组件函数, 返回是一个新的组件函数
  */
+
+/*
+async和await
+1. 作用？
+    简化promise对象的使用：不再使用then()来指定成功或失败的回调函数
+    以同步编码（没有回调函数了）方式实现异步流程
+2. 哪里写await？
+    在返回promixe的表达式左侧写await：不想要promise，想要promise异步执行成功的value数据
+3. 哪里写async？
+    await所在函数（最近的）定义的左侧写async
+*/
