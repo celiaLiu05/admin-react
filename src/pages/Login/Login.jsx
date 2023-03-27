@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Form, Icon, Input, Button } from 'antd';
 import './Login.less'
 import logo from './images/logo.png'
+import {reqLogin} from '../../api'
 // 登陆的路由组件
 class Login extends Component {
     handleSubmit = (e) => {
@@ -10,7 +11,12 @@ class Login extends Component {
         // 检验成功·
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                console.log('校验成功', values);
+                const {username, password} = values
+                reqLogin(username, password).then((response) => {
+                    console.log('请求成功', response.data);
+                }).catch((error) => {
+                    console.log('请求失败', error);
+                })
             }else {
                 console.log("校验失败");
             }
