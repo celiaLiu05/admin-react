@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Form, Icon, Input, Button } from 'antd';
+import { Form, Icon, Input, Button, message } from 'antd';
 import './Login.less'
 import logo from './images/logo.png'
 import {reqLogin} from '../../api'
@@ -12,8 +12,17 @@ class Login extends Component {
         this.props.form.validateFields(async(err, values) => {
             if (!err) {
                 const {username, password} = values
-                const response = await reqLogin(username, password)
-                console.log('请求成功', response.data);
+                const result = await reqLogin(username, password) // {status: 0, data: user} {status: 1, msg: 'xxx'}
+                // console.log('请求成功', result);
+                if(result.status === 0) { // 登陆成功
+                    // 提示登陆成功
+                    message.success('登陆成功！')
+                    // 跳转到管理界面（不需要再退回到登陆界面）
+                    this.props.history.replace('/')
+                }else { // 登陆失败
+                    // 提示错误信息
+                    message.error(result.msg)
+                }
             }else {
                 console.log("校验失败");
             }
