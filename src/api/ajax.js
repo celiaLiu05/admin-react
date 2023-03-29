@@ -4,7 +4,7 @@
 函数的返回值是promise对象
 1. 优化：统一处理请求异常？
     在外层包一个自己创建的promise对象
-    在请求出错时，不reject(error)，而是显示错误提示
+    在请求出错时，不reject(error)，而是显示错误提
 */
 import axios from "axios"
 import {message} from 'antd'
