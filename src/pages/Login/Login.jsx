@@ -4,7 +4,7 @@ import { Form, Icon, Input, Button, message } from 'antd';
 import {reqLogin} from '../../api'
 import memoryUtils from "../../utils/memoryUtils";
 import storageUtils from "../../utils/storageUtils";
-import logo from '../../assets/images/bg.jpg'
+import logo from '../../assets/images/logo.png'
 import './Login.less'
 // 登陆的路由组件
 class Login extends Component {
