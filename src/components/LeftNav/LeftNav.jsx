@@ -44,6 +44,9 @@ class LeftNav extends Component {
     // 根据menu的数据数组生成对应的标签数组
     // 使用用reduce + 递归调用
     getMenuNodes = (menuList) => {
+        //  得到当前的请求的路由路径
+        const path = this.props.location.pathname
+
         return menuList.reduce((pre, item) => {
             if(!item.children) {
                 pre.push((
@@ -55,6 +58,12 @@ class LeftNav extends Component {
                     </Menu.Item>
                 ))
             }else {
+                // 查找一个与当前路径匹配的子item
+                const cItem = item.children.find((cItem) => path === cItem.key) 
+                // 如果存在，说明当前item的子列表需要打开   
+                if(cItem) {
+                    this.openKey = item.key
+                }
                 pre.push((
                     <SubMenu
                         key={item.key}
@@ -72,6 +81,11 @@ class LeftNav extends Component {
             return pre
         }, [])
     }
+    // 在第一次render之前执行一次 
+    // 为第一次render准备数据 
+    componentWillMount() {
+        this.menuList = this.getMenuNodes(menuList)
+    }
     render() {
         //  得到当前的请求的路由路径
         const path = this.props.location.pathname
@@ -85,8 +99,9 @@ class LeftNav extends Component {
                     mode="inline"
                     theme="dark"
                     selectedKeys={[path]}
+                    defaultOpenKeys={[this.openKey]}
                 >
-                        { this.getMenuNodes(menuList) }
+                        { this.menuList }
                 </Menu>
             </div>
         )
