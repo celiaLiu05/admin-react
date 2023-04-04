@@ -5,6 +5,7 @@ import {formateDate} from '../../utils/dateUtils'
 import memoryUtils from "../../utils/memoryUtils"
 import storageUtils from '../../utils/storageUtils'
 import menuList from "../../config/menuConfig"
+import LinkButton from "../LinkButton/LinkButton";
 import './Header.less'
 class Header extends Component {
     state = {
@@ -69,7 +70,7 @@ class Header extends Component {
             <div className="header">
                 <div className="header-top">
                     <span>欢迎，{username}</span>
-                    <a href="javascript:;" onClick={this.logout}>退出</a>
+                    <LinkButton onClick={this.logout}>退出</LinkButton>
                 </div>
                 <div className="header-bottom">
                     <div className="header-bottom-left">{title}</div>
