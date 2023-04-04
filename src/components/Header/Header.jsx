@@ -1,7 +1,9 @@
 import React, {Component} from "react"
-import { withRouter } from "react-router-dom"
+import {withRouter} from "react-router-dom"
+import {Modal} from 'antd';
 import {formateDate} from '../../utils/dateUtils'
 import memoryUtils from "../../utils/memoryUtils"
+import storageUtils from '../../utils/storageUtils'
 import menuList from "../../config/menuConfig"
 import './Header.less'
 class Header extends Component {
@@ -11,7 +13,7 @@ class Header extends Component {
 
     getTime = () => {
         // 每隔一秒获取当前时间，并更新状态数据currentTime
-        setInterval(() => {
+        this.intervalId = setInterval(() => {
             const currentTime = formateDate(Date.now())
             this.setState({currentTime})
         }, 1000)
@@ -36,11 +38,28 @@ class Header extends Component {
         })
         return title
     }
+
+    logout = () => {
+        Modal.confirm({
+            content: '确认退出吗？',
+            onOk: () => {
+                // 删除保存的用户数据
+                storageUtils.removeUser()
+                memoryUtils.user = {}
+                // 跳转到登陆界面
+                this.props.history.replace('/login')
+            }
+          });
+    }
     // 在第一次render之后执行一次
     // 一般在此执行异步操作：发ajax请求/启动定时器
     componentDidMount() {
         // 获取当前时间
         this.getTime()
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.intervalId)
     }
     render() {
         const {currentTime} = this.state
@@ -50,7 +69,7 @@ class Header extends Component {
             <div className="header">
                 <div className="header-top">
                     <span>欢迎，{username}</span>
-                    <a href="javascript:;">退出</a>
+                    <a href="javascript:;" onClick={this.logout}>退出</a>
                 </div>
                 <div className="header-bottom">
                     <div className="header-bottom-left">{title}</div>
