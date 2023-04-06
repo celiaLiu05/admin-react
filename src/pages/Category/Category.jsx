@@ -1,5 +1,5 @@
 import React, {Component} from "react"
-import {reqCategorys, reqUpdateCategory} from '../../api'
+import {reqCategorys, reqUpdateCategory, reqAddCategory} from '../../api'
 import {Card, Table, Button, Icon, message, Modal} from 'antd'
 import LinkButton from "../../components/LinkButton/LinkButton"
 import AddForm from "./AddForm"
@@ -39,11 +39,12 @@ export default class Category extends Component {
     }
 
     // 异步获取一级/二级分类列表显示
-    getCategorys = async() => {
+    // parentId：如果没有指定根据状态中的parentId请求，如果指定了根据指定的请求
+    getCategorys = async(parentId) => {
         // 在发请求前，显示loading
         this.setState({loading: true})
-        const {parentId} = this.state
-        // 发异步ajax请求， 获取数据
+        parentId = parentId || this.state.parentId
+        // 发异步ajax请求，获取数据
         const result = await reqCategorys(parentId)
         // 在请求完成后，隐藏loading
         this.setState({loading: false})
@@ -106,8 +107,24 @@ export default class Category extends Component {
     }
 
     // 添加分类
-    addCategory = () => {
-        console.log('addCategory');
+    addCategory = async() => {
+        // 1. 隐藏确认框
+        this.setState({showStatus: 0})
+        // 收集数据 并提交添加分类的请求
+        const {categoryName, parentId} = this.form.getFieldsValue()
+        // 清除输入数据
+        this.form.resetFields()
+        const result = await reqAddCategory(categoryName, parentId)
+        if(result.status === 0) {
+            // 3. 重新获取分类列表显示
+            // 添加的分类就是当前分类列表下的分类
+            if(parentId === this.state.parentId) {
+                // 重新获取当前分类列表显示
+                this.getCategorys()
+            }else if(parentId === '0') { // 在二级分类列表下添加一级分类，重新获取一级分类列表，但不需要显示一级分类列表
+                this.getCategorys('0')
+            }
+        }
     }
 
     // 更新分类
@@ -174,7 +191,11 @@ export default class Category extends Component {
                         onOk={this.addCategory}
                         onCancel={this.handleCancel}
                     >
-                        <AddForm/>
+                        <AddForm 
+                            categorys={categorys} 
+                            parentId={parentId}
+                            setForm={(form) => {this.form = form}}
+                        />
                     </Modal>
                     <Modal
                         title="更新分类"
