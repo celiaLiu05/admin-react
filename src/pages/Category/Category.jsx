@@ -1,7 +1,9 @@
 import React, {Component} from "react"
 import {reqCategorys} from '../../api'
 import {Card, Table, Button, Icon, message, Modal} from 'antd'
-import LinkButton from "../../components/LinkButton/LinkButton";
+import LinkButton from "../../components/LinkButton/LinkButton"
+import AddForm from "./AddForm"
+import UpdateForm from "./UpdateForm"
 
 export default class Category extends Component {
     state = {
@@ -148,16 +150,16 @@ export default class Category extends Component {
                         visible={showStatus === 1}
                         onOk={this.addCategory}
                         onCancel={this.handleCancel}
-                        >
-                        <p>添加分类</p>
+                    >
+                        <AddForm/>
                     </Modal>
                     <Modal
                         title="更新分类"
                         visible={showStatus === 2}
                         onOk={this.updateCategory}
                         onCancel={this.handleCancel}
-                        >
-                        <p>更新分类</p>
+                    >
+                        <UpdateForm/>
                     </Modal>
                 </Card>
             </div>
