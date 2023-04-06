@@ -13,7 +13,7 @@ export default class Category extends Component {
     }
 
     // 初始化Table所有列的数组
-    initColumns = () => {
+    initColumns = () => {  
         this.columns = [
             {
               title: '分类名称',
@@ -26,7 +26,9 @@ export default class Category extends Component {
                 <div>
                     <LinkButton>修改分类</LinkButton>
                     {/* 如何向事件回调函数传递参数：先定义一个匿名函数，在函数调用处理的函数中传入数据 */}
-                    <LinkButton onClick={() => this.showSubCategorys(category)}>查看子分类</LinkButton>
+                    {
+                        this.state.parentId === '0' ? (<LinkButton onClick={() => this.showSubCategorys(category)}>查看子分类</LinkButton>) : null
+                    }
                 </div>
               )
             }
@@ -69,7 +71,15 @@ export default class Category extends Component {
         })
         // setState()不能立即获取最新的状态：因为setState()是异步更新状态的
     }
-
+    // 显示一级分类表
+    showCategorys = () => {
+        // 更新为显示一级列表的状态 
+        this.setState({
+            parentId: '0',
+            parentName: '',
+            subCategorys: [ ]
+        })
+    }
     // 为第一次render准备数据
     componentWillMount() {
         this.initColumns()
@@ -82,7 +92,13 @@ export default class Category extends Component {
     }
     render() {
         const {categorys, loading, subCategorys, parentId, parentName} = this.state
-        const title = '一级分类列表'
+        const title = parentId === '0' ? '一级分类列表' : (
+            <span>
+                <LinkButton onClick={this.showCategorys}>一级分类列表</LinkButton>
+                <Icon type="arrow-right" style={{marginRight: 5}}/>
+                <span>{parentName}</span>
+            </span>
+        )
         const extra = (
             <Button type="primary">
                 <Icon type="plus"></Icon>
