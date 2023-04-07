@@ -58,7 +58,7 @@ export default class ProductHome extends Component {
     //  获取指定页码的数据
     getProducts = async(pageNum) => {
         this.setState({loading: true})
-        const result = await reqProducts({pageNum, PAGE_SIZE})
+        const result = await reqProducts({pageNum, pageSize: PAGE_SIZE})
         this.setState({loading: false})
         if(result.status === 0) {
             console.log(result);
