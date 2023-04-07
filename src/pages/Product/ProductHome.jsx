@@ -1,25 +1,14 @@
 import React, {Component} from "react"
 import {Card, Select, Input, Button, Icon, Table} from 'antd'
+import {reqProducts} from '../../api'
+import {PAGE_SIZE} from '../../utils/constants'
 import LinkButton from '../../components/LinkButton/LinkButton'
 // product的默认子路由组件
 export default class ProductHome extends Component {
     state = {
-        products: [ //  商品的数组
-            {
-                "status": 2,
-                "imgs": [
-                    "1578588737108-index.jpg"
-                ],
-                "_id": "5e12b97de31bb727e4b0e349",
-                "name": "联想ThinkPad 翼4809",
-                "desc": "年度重量级新品，X390、T490全新登场 更加轻薄机身设计9",
-                "price": 6300,
-                "pCategoryId": "5e12b8bce31bb727e4b0e348",
-                "categoryId": "5fc74b650dd9b10798413162",
-                "detail": "<p><span style=\"color: rgb(228,57,60);background-color: rgb(255,255,255);font-size: 12px;\">想你所需，超你所想！精致外观，轻薄便携带光驱，内置正版office杜绝盗版死机，全国联保两年！</span></p>\n<p><span style=\"color: rgb(102,102,102);background-color: rgb(255,255,255);font-size: 16px;\">联想（Lenovo）扬天V110 15.6英寸家用轻薄便携商务办公手提笔记本电脑 定制【E2-9010/4G/128G固态】 2G独显 内置</span></p>\n<p><span style=\"color: rgb(102,102,102);background-color: rgb(255,255,255);font-size: 16px;\"></span></p>\n",
-                "__v": 0
-            },
-        ] 
+        products: [], //  商品的数组
+        total: 0, // 商品的总数量
+        loading: false, // 加载
     }
 
     initColumns = () => {
@@ -65,11 +54,31 @@ export default class ProductHome extends Component {
             }
           ]
     }
+
+    //  获取指定页码的数据
+    getProducts = async(pageNum) => {
+        this.setState({loading: true})
+        const result = await reqProducts({pageNum, PAGE_SIZE})
+        this.setState({loading: false})
+        if(result.status === 0) {
+            console.log(result);
+            const {list, total} = result.data
+            this.setState({
+                products: list,
+                total
+            })
+        }
+    }
+
     componentWillMount() {
         this.initColumns()
     }
+
+    componentDidMount() {
+        this.getProducts(1)
+    }
     render() {
-        const {products} = this.state  
+        const {products, total, loading } = this.state  
 
         const title = (
             <span>
@@ -92,8 +101,15 @@ export default class ProductHome extends Component {
                 <Table
                     bordered
                     rowKey="_id"
+                    loading={loading}
                     dataSource={products} 
                     columns={this.columns} 
+                    Pagination={{
+                        defaultPageSize: PAGE_SIZE, 
+                        showQuickJumper: true,
+                        total, 
+                        onChange: this.getProducts
+                    }}
                 />
             </Card>
         )
