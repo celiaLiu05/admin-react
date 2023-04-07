@@ -1,9 +1,40 @@
 import React, {Component} from "react"
 import {Card, Icon, List} from 'antd'
+import {BASE_IMG_URL} from '../../utils/constants'
+import { reqCategory } from "../../api"
 import LinkButton from "../../components/LinkButton/LinkButton"
 const Item = List.Item
 // product的详情子路由组件
 export default class Detail extends Component {
+
+    state = {
+        cName1: '', // 一级分类列表的名称
+        cName2: '', // 二级分类列表的名称
+    }
+
+    async componentDidMount() {
+        // 得到当前商品的分类ID
+        const {pCategoryId, categoryId} = this.props.location.state.product
+        // 是一级分类
+        if(pCategoryId === '0') {
+            const result = await reqCategory(categoryId)
+            const cName1 = result.data.name
+            this.setState({cName1})
+        }else { // 是二级分类
+            // 通过await方式发送多个请求：后面一个请求是在前一个请求成功返回之后才发送
+            // const result1 = await reqCategory(pCategoryId)
+            // const result2 = await reqCategory(categoryId)
+            // const cName1 = result1.data.name
+            // const cName2 = result2.data.name
+
+            // 一次性发送多个请求，只有全部成功返回数据了，才正常处理
+            const results = await Promise.all([reqCategory(pCategoryId), reqCategory(categoryId)])
+            const cName1 = results[0].data.name
+            const cName2 = results[1].data.name
+            this.setState({cName1, cName2})
+        }
+        reqCategory()
+    }
 
     render() {
         const title = (
@@ -22,6 +53,8 @@ export default class Detail extends Component {
         // 读取携带过来的state数据
         const {name, desc, price, imgs, detail} = this.props.location.state.product
         
+        const {cName1, cName2} = this.state
+
         return(
             <Card title={title} className='product-detail'>
                 <List>
@@ -39,13 +72,21 @@ export default class Detail extends Component {
                     </Item>
                     <Item>
                         <span className='left'>所属分类：</span>
-                        <span>aaaaaaaaaaaaaa</span>
+                        <span>{cName1} {cName2 ? '——> ' + cName2 : ''}</span>
                     </Item>
                     <Item>
                         <span className='left'>商品图片：</span>
                         <span>
-                            <img className="product-img" src="https://th.bing.com/th/id/R.8e5e293cae342149832fff96bb4c8caa?rik=dbonSUJuDVqx5A&riu=http%3a%2f%2fimg.mm4000.com%2ffile%2f8%2fd7%2f6527dce099.jpg%3fdown&ehk=E9%2bVucd%2fent1hsPcwHCre695jRwtoRQJzu1ymZuXJL0%3d&risl=&pid=ImgRaw&r=0" alt="img" />
-                            <img className="product-img" src="https://th.bing.com/th/id/R.8e5e293cae342149832fff96bb4c8caa?rik=dbonSUJuDVqx5A&riu=http%3a%2f%2fimg.mm4000.com%2ffile%2f8%2fd7%2f6527dce099.jpg%3fdown&ehk=E9%2bVucd%2fent1hsPcwHCre695jRwtoRQJzu1ymZuXJL0%3d&risl=&pid=ImgRaw&r=0" alt="img" />
+                            {
+                                imgs.map(img => (
+                                    <img 
+                                        key={img}
+                                        className="product-img" 
+                                        src={BASE_IMG_URL + img}
+                                        alt="img" 
+                                    />
+                                ))
+                            }
                         </span>
                     </Item>
                     <Item>
