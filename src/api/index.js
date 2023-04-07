@@ -18,3 +18,10 @@ export const reqAddCategory = (categoryName, parentId) => ajax(BASE + '/manage/c
 export const reqUpdateCategory = ({categoryId, categoryName}) => ajax(BASE + '/manage/category/update', {categoryId, categoryName}, 'POST')
 // 获取商品分页列表
 export const reqProducts = ({pageNum, pageSize}) => ajax(BASE + '/manage/product/list', {pageNum, pageSize})
+// 搜索商品分页列表
+// searchType: productName/productDesc
+export const reqSearchProducts = ({pageNum, pageSize, searchType, searchName}) => ajax(BASE + '/manage/product/search', {
+    pageNum, 
+    pageSize, 
+    [searchType]: searchName
+})

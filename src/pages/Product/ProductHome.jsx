@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import {Card, Select, Input, Button, Icon, Table} from 'antd'
-import {reqProducts} from '../../api'
+import {reqProducts, reqSearchProducts} from '../../api'
 import {PAGE_SIZE} from '../../utils/constants'
 import LinkButton from '../../components/LinkButton/LinkButton'
 // product的默认子路由组件
@@ -9,6 +9,8 @@ export default class ProductHome extends Component {
         products: [], //  商品的数组
         total: 0, // 商品的总数量
         loading: false, // 加载
+        searchType: 'productName', // 搜索的类型
+        searchName: '', //搜索的关键字
     }
 
     initColumns = () => {
@@ -57,11 +59,20 @@ export default class ProductHome extends Component {
 
     //  获取指定页码的数据
     getProducts = async(pageNum) => {
+        const {searchType, searchName} = this.state
+        // 显示loading
         this.setState({loading: true})
-        const result = await reqProducts({pageNum, pageSize: PAGE_SIZE})
+        let result
+        // 如果搜索关键词有值，进行搜索分页
+        if(searchName) {
+            result =  await reqSearchProducts({pageNum, pageSize: PAGE_SIZE, searchType, searchName})
+        }else { // 一般分页
+            result = await reqProducts({pageNum, pageSize: PAGE_SIZE})
+        }
+        // 隐藏loading
         this.setState({loading: false})
         if(result.status === 0) {
-            console.log(result);
+            // 取出分页数据，更新状态，显示分页列表
             const {list, total} = result.data
             this.setState({
                 products: list,
@@ -78,16 +89,25 @@ export default class ProductHome extends Component {
         this.getProducts(1)
     }
     render() {
-        const {products, total, loading } = this.state  
+        const {products, total, loading, searchType, searchName} = this.state  
 
         const title = (
             <span>
-                <Select value='1' style={{width: 150}}>
-                    <Select.Option value='1'>按名称搜索</Select.Option>
-                    <Select.Option value='2'>按分类搜索</Select.Option>
+                <Select 
+                    value={searchType} 
+                    style={{width: 150}}
+                    onChange={(value) => {this.setState({searchType: value})}}
+                >
+                    <Select.Option value='productName'>按名称搜索</Select.Option>
+                    <Select.Option value='productDesc'>按描述搜索</Select.Option>
                 </Select>
-                <Input placeholder="关键字" style={{width: 150, margin: '0 15px'}}/>
-                <Button type="primary">搜索</Button>
+                <Input 
+                    placeholder="关键字" 
+                    style={{width: 150, margin: '0 15px'}} 
+                    value={searchName}
+                    onChange={(e) => {this.setState({searchName: e.target.value})}}
+                />
+                <Button type="primary" onClick={() => this.getProducts(1)}>搜索</Button>
             </span>
         )
         const extra = (
@@ -104,7 +124,7 @@ export default class ProductHome extends Component {
                     loading={loading}
                     dataSource={products} 
                     columns={this.columns} 
-                    Pagination={{
+                    pagination={{
                         defaultPageSize: PAGE_SIZE, 
                         showQuickJumper: true,
                         total, 
