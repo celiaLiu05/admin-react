@@ -27,3 +27,5 @@ export const reqSearchProducts = ({pageNum, pageSize, searchType, searchName}) =
     pageSize, 
     [searchType]: searchName
 })
+// 更新商品状态（上架/下架）
+export const reqUpdateStatus = (productId, status) => ajax(BASE + '/manage/product/updateStatus', {productId, status}, 'POST')

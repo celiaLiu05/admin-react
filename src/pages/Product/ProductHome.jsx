@@ -1,6 +1,6 @@
 import React, {Component} from "react"
-import {Card, Select, Input, Button, Icon, Table} from 'antd'
-import {reqProducts, reqSearchProducts} from '../../api'
+import {Card, Select, Input, Button, Icon, Table, message} from 'antd'
+import {reqProducts, reqSearchProducts, reqUpdateStatus} from '../../api'
 import {PAGE_SIZE} from '../../utils/constants'
 import LinkButton from '../../components/LinkButton/LinkButton'
 // product的默认子路由组件
@@ -32,12 +32,21 @@ export default class ProductHome extends Component {
             {
                 title: '状态',
                 width: '100px',
-                dataIndex: 'status',
-                render: (status ) => {
+                // dataIndex: 'status',
+                render: (product) => {
+                    const {status, _id} = product
+                    const newStatus = status === 1 ? 2 : 1 
                     return (
                         <span>
-                            <Button type="primary">下架</Button>
-                            <span>在售</span>
+                            <Button 
+                                type="primary"
+                                onClick={() => this.updateStatus(_id, newStatus)}
+                            >
+                                {status === 1 ? '下架' : '上架'}
+                            </Button>
+                            <span>
+                                {status === 1 ? '在售' : '已下架'}
+                            </span>
                         </span>
                     )
                 }
@@ -60,6 +69,8 @@ export default class ProductHome extends Component {
 
     //  获取指定页码的数据
     getProducts = async(pageNum) => {
+        // 保存当前页码
+        this.pageNum = pageNum
         const {searchType, searchName} = this.state
         // 显示loading
         this.setState({loading: true})
@@ -82,6 +93,14 @@ export default class ProductHome extends Component {
         }
     }
 
+    // 更新指定商品的状态 
+    updateStatus = async(productId, status) => {
+        const result = await reqUpdateStatus(productId, status)
+        if(result.status === 0) {
+            message.success('修改商品状态成功！')
+            this.getProducts(this.pageNum)
+        }
+    }
     componentWillMount() {
         this.initColumns()
     }
@@ -89,6 +108,7 @@ export default class ProductHome extends Component {
     componentDidMount() {
         this.getProducts(1)
     }
+
     render() {
         const {products, total, loading, searchType, searchName} = this.state  
 
